@@ -115,7 +115,7 @@ ggplot(data = wines, aes(fixed.acidity, quality)) +
   ggtitle('Wine Quality by Fixed Acidity')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_fixed_acidity}
+```{r echo=FALSE, boxplot_quality_vs_fixed_acidity}
 ggplot(data = wines, 
        aes(x = factor(quality), y = fixed.acidity)) + 
   geom_jitter(alpha =0.5) +
@@ -158,7 +158,7 @@ ggplot(data = wines_subset, aes(volatile.acidity, quality)) +
   ggtitle('Wine Quality by Volatile Acidity')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_volatile_acidity}
+```{r echo=FALSE, boxplot_quality_vs_volatile_acidity}
 ggplot(data = wines_subset, 
        aes(x = factor(quality), y = volatile.acidity)) + 
   geom_jitter(alpha =0.5) +
@@ -199,7 +199,7 @@ ggplot(data = wines, aes(citric.acid, quality)) +
   ggtitle('Wine Quality by Citric Acid')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_citric_acid}
+```{r echo=FALSE, boxplot_quality_vs_citric_acid}
 ggplot(data = wines, 
        aes(x = factor(quality), y = citric.acid)) + 
   geom_jitter(alpha =0.5) +
@@ -215,7 +215,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Residual Sugar
 The histogram of the residual sugar looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Residual_Sugar}
+```{r echo=FALSE, Distribution_Quality_vs_Residual_Sugar}
 plot1 <- ggplot(data = wines) + 
   geom_histogram(aes(x = residual.sugar), binwidth = 0.2) +
   ggtitle('Residual Sugar Histogram')
@@ -239,7 +239,7 @@ ggplot(data = wines, aes(residual.sugar, quality)) +
   ggtitle('Wine Quality by Residual Sugar')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_residual_sugar}
+```{r echo=FALSE, boxplot_quality_vs_residual_sugar}
 ggplot(data = wines, 
        aes(x = factor(quality), y = residual.sugar)) + 
   geom_jitter(alpha =0.5) +
@@ -256,7 +256,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Chlorides
 The histogram of the chlorides looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Chlorides}
+```{r echo=FALSE, Distribution_Quality_vs_Chlorides}
 subset_data <- subset(wines, chlorides > quantile(chlorides,0.01))
 
 plot1 <- ggplot(data = subset_data) +
@@ -282,7 +282,7 @@ ggplot(data = subset_data, aes(chlorides, quality)) +
   ggtitle('Wine Quality by Chlorides')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_chlorides}
+```{r echo=FALSE, boxplot_quality_vs_chlorides}
 ggplot(data = subset_data, 
        aes(x = factor(quality), y = chlorides)) + 
   geom_jitter(alpha =0.5) +
@@ -299,7 +299,7 @@ ggplot(data = subset_data,
 ### Wine Quality vs. Free Sulfur Dioxide
 The histogram of the free sulfur dioxide looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is very low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Free_Sulfur_Dioxide}
+```{r echo=FALSE, Distribution_Quality_vs_Free_Sulfur_Dioxide}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = free.sulfur.dioxide), binwidth = 10) +
@@ -324,7 +324,7 @@ ggplot(data = wines, aes(free.sulfur.dioxide, quality)) +
   ggtitle('Wine Quality by Free Sulfur Dioxide')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_free_sulfur_dioxide}
+```{r echo=FALSE, boxplot_quality_vs_free_sulfur_dioxide}
 ggplot(data = wines, 
        aes(x = factor(quality), y = free.sulfur.dioxide)) + 
   geom_jitter(alpha =0.5) +
@@ -342,7 +342,7 @@ ggplot(data = wines,
 The histogram of the total sulfur dioxide looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
 
-```{r echo = FALSE, Scatterplot_Quality_vs_Total_Sulfur_Dioxide}
+```{r echo = FALSE, Distribution_Quality_vs_Total_Sulfur_Dioxide}
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = total.sulfur.dioxide), binwidth = 10) +
   ggtitle('Total Sulfur Dioxide Histogram')
@@ -366,7 +366,7 @@ ggplot(data = wines, aes(total.sulfur.dioxide, quality)) +
   ggtitle('Wine Quality by Free Sulfur Dioxide')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, boxplot_quality_vs_total_sulfur_dioxide}
 ggplot(data = wines, 
        aes(x = factor(quality), y = total.sulfur.dioxide)) + 
   geom_jitter(alpha =0.5) +
@@ -382,7 +382,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Density
 The histogram of the density looks normal, so I won't perform a transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Density}
+```{r echo=FALSE, Distribution_Quality_vs_Density}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = density), binwidth = 0.001) +
@@ -406,7 +406,7 @@ ggplot(data = wines, aes(density, quality)) +
   ggtitle('Wine Quality by Density')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_density}
+```{r echo=FALSE, boxplot_quality_vs_density}
 ggplot(data = wines, 
        aes(x = factor(quality), y = density)) + 
   geom_jitter(alpha =0.5) +
@@ -422,7 +422,7 @@ ggplot(data = wines,
 ### Scatterplot of Wine Quality vs. pH
 The histogram of the pH looks skewed, so I perform a lognormal transformation on the data. The correlation coefficient is very low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Scatterplot_Quality_vs_pH}
+```{r echo=FALSE, Distribution_Quality_vs_pH}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = pH), binwidth = 0.01) +
@@ -439,7 +439,7 @@ grid.arrange(plot1, plot2, ncol = 2)
 cor.test(wines$quality, log10(wines$pH))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, Scatterplot_Quality_vs_pH}
 ggplot(data = wines, aes(pH, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -447,7 +447,7 @@ ggplot(data = wines, aes(pH, quality)) +
   ggtitle('Wine Quality by pH')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, boxplot_quality_vs_pH}
 ggplot(data = wines, 
        aes(x = factor(quality), y = pH)) + 
   geom_jitter(alpha =0.5) +
@@ -463,7 +463,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Sulphates
 The histogram of the sulphates looks skewed, so I perform a lognormal transformation on the data. The correlation coefficient is OK and the scatterplot looks like there may be a linear trend, so I will pursue this variable further.
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Sulphates}
+```{r echo=FALSE, Distribution_Quality_vs_Sulphates}
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = sulphates), binwidth = 0.01) +
   ggtitle('Sulphates Histogram')
@@ -479,7 +479,7 @@ grid.arrange(plot1, plot2, ncol = 2)
 cor.test(wines$quality, log10(wines$sulphates))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, Scatterplot_Quality_vs_Sulphates}
 ggplot(data = wines, aes(sulphates, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -487,7 +487,7 @@ ggplot(data = wines, aes(sulphates, quality)) +
   ggtitle('Wine Quality by Sulphates')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, boxplot_quality_vs_Sulphates}
 ggplot(data = wines, 
        aes(x = factor(quality), y = sulphates)) + 
   geom_jitter(alpha =0.5) +
@@ -505,7 +505,7 @@ ggplot(data = wines,
 Alcohol content actually looks pretty correlated after a lognormal transformation!
 
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Alcohol_Content}
+```{r echo=FALSE, Distribution_Quality_vs_Alcohol_Content}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = alcohol), binwidth = 0.5) +
@@ -522,7 +522,7 @@ grid.arrange(plot1, plot2, ncol = 2)
 cor.test(wines$quality, log10(wines$alcohol))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, Scatterplot_Quality_vs_Alcohol_Content}
 ggplot(data = wines, aes(alcohol, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -530,7 +530,7 @@ ggplot(data = wines, aes(alcohol, quality)) +
   ggtitle('Wine Quality by Alcohol Content')
 ```
 
-```{r echo=FALSE boxplot_quality_vs_total_sulfur_dioxide}
+```{r echo=FALSE, boxplot_quality_vs_Alcohol_Content}
 ggplot(data = wines, 
        aes(x = factor(quality), y = alcohol)) + 
   geom_jitter(alpha =0.5) +
