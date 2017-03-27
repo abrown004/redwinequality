@@ -1,7 +1,12 @@
 Predictors of Red Wine Quality   by Andrea Brown
 ========================================================
+```{r global_options, include=FALSE}
+#Set global options
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+
+```{r packages}
 # Load all of the packages that you end up using in your analysis in this code
 # chunk.
 
@@ -22,53 +27,49 @@ library(gridExtra)
 library(RColorBrewer)
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Load_the_Data}
+```{r Load_the_Data}
 # Load the Data
 wines <- read.csv('wineQualityReds.csv')
+wines$X <- NULL
 ```
 
 # Introduction 
 This dataset contains 9 quantitative variables describing the chemistry of 1,599 different wines. Three or more wine experts gave each wine a rating between 0 (very bad) and 10 (very excellent). I will assess which, if any, of the chemical properties of the wine are good predictors of the wine quality.
 
-# Univariate Plots Section
-
-### Exploratory Data Analysis
+# Exploratory Data Analysis
 I'll start by importing the data and looking at a summary of the variables.
 
-```{r echo=FALSE, Univariate_Plots}
+```{r Univariate_Plots}
 summary(wines)
 ```
 
 ### A Closer Look at Wine Quality
 Next I take a look at the distribution of the wine quality variable. It looks like the integers are fairly normally distributed with the vast majority of integers being 5, 6, or 7.
 
-```{r echo=FALSE, Univariate_Plots_2}
+```{r Univariate_Plots_2}
 grid.arrange(
   ggplot(data = wines) +
     geom_histogram(aes(x = quality), binwidth = 1, color = "#099DD9") +
-    ggtitle('Wine Quality'),
+    ggtitle('Wine Quality Histogram'),
 
   ggplot(aes(x=1, y=quality), data = wines) +
-    geom_boxplot( )
+    geom_boxplot( ) +
+    ggtitle('Wine Quality Box Plot')
 , nrow =1)
-
 ```
 
-# Univariate Analysis
+# Dependent Variable Analysis
 
 One thing I observe from the summary of the data is that the minimum rating of the wines is a 3 and the maximum rating is an 8. Looking at the histogram, I notice the vast majority of the wine quality integers are 5, 6, or 7, which is concerning because there isn't much variation in my outcome variable. I also notice that the wine quality integers 3 and 8 are outliers in my box plot.
 
 Next I'll take a closer look at the potential predictor variables and their distributions.
 
-# Bivariate Plots Section
-
 ### Overview of Bivariate Relationships 
 I'll start the Bivariate Plot Section by making a big matrix of scatterplots using the ggpairs function. After plotting, it looks like the influence from outliers and non-linear distributions is making it difficult to tell if there are any trends. Since there are only 9 variables, I'll take a closer look at a histogram and box plot of each variable, the correlation factor, and the scatterplot and box plot of the chemical property vs. the wine quality rating.
 
-```{r echo=FALSE, Univariate_Plots_3}
+```{r fig.width=15, fig.height=15, Univariate_Plots_3}
 set.seed(500)
-wines_subset <- wines[,c(2:13)]
-names(wines_subset)
+names(wines)
 
 lowerFn <- function(data, mapping, ...) {
   p <- ggplot(data = data, mapping = mapping) +
@@ -76,7 +77,7 @@ lowerFn <- function(data, mapping, ...) {
   p
 }
 
-plot1 <- ggpairs(data = wines_subset[sample.int(nrow(wines_subset),500),],
+plot1 <- ggpairs(data = wines[sample.int(nrow(wines),500),],
         upper = list(continuous = wrap("cor", size = 2)),
         lower = list(continuous =  wrap(lowerFn)))
 plot1 <- plot1 + theme(axis.text = element_text(size = 6),
@@ -88,11 +89,10 @@ print(plot1, bottomHeightProportion = 1, leftWidthProportion = 1)
 
 ```
 
-
 ### Wine Quality vs. Fixed Acidity
 The histogram of the fixed acidity looks fairly normal, so I won't transform the data. I jittered the points in the scatterplot to compensate for the gaps due to the integer values for wine quality. A scatterplot of wine quality vs. fixed acidity does not reveal any significant trends and the correlation factor is not that high, so I won't look further into fixed acidity.
 
-```{r echo=FALSE, Distribution_Quality_vs_Fixed_Acidity}
+```{r Distribution_Quality_vs_Fixed_Acidity}
 plot1 <- ggplot(data = wines) + 
   geom_histogram(aes(x = fixed.acidity), binwidth = 0.1) + 
   ggtitle('Fixed Acidity Histogram')
@@ -104,18 +104,18 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient}
+```{r correlation_coefficient}
 cor.test(wines$quality, wines$fixed.acidity)
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Fixed_Acidity}
+```{r Scatterplot_Quality_vs_Fixed_Acidity}
 ggplot(data = wines, aes(fixed.acidity, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   geom_smooth(method=lm) +
   ggtitle('Wine Quality by Fixed Acidity')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_fixed_acidity}
+```{r boxplot_quality_vs_fixed_acidity}
 ggplot(data = wines, 
        aes(x = factor(quality), y = fixed.acidity)) + 
   geom_jitter(alpha =0.5) +
@@ -131,7 +131,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Volatile Acidity
 The histogram of the volatile acidity looks almost lognormal, so I will try a log10 transformation on the x-axis. The log10 transformation of the x-axis improves the linearity of the scatterplot and there appears to be somewhat of a correlation although not a strong one. I remove the 1% highest and 1% lowest values of volatile acidity and this also helps the linearity of the scatter plot.
 
-```{r echo=FALSE, Distribution_Quality_vs_Volatile_Acidity}
+```{r Distribution_Quality_vs_Volatile_Acidity}
 wines_subset <- subset(wines, volatile.acidity > quantile(volatile.acidity,0.01) 
                        & volatile.acidity < quantile(volatile.acidity,0.99))
 
@@ -146,11 +146,11 @@ plot2 <- ggplot(data = wines_subset) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_2}
+```{r correlation_coefficient_2}
 cor.test(wines_subset$quality, I(log10(wines_subset$volatile.acidity)))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Volatile_Acidity}
+```{r Scatterplot_Quality_vs_Volatile_Acidity}
 ggplot(data = wines_subset, aes(volatile.acidity, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -158,7 +158,7 @@ ggplot(data = wines_subset, aes(volatile.acidity, quality)) +
   ggtitle('Wine Quality by Volatile Acidity')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_volatile_acidity}
+```{r boxplot_quality_vs_volatile_acidity}
 ggplot(data = wines_subset, 
        aes(x = factor(quality), y = volatile.acidity)) + 
   geom_jitter(alpha =0.5) +
@@ -175,7 +175,7 @@ ggplot(data = wines_subset,
 ### Wine Quality vs. Citric Acid
 The histogram of the citric acid looks non-linear, so I used a square root transformaion on the x-axis. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further. 
 
-```{r echo=FALSE, Distribution_Quality_vs_Citric_Acid}
+```{r Distribution_Quality_vs_Citric_Acid}
 plot1 <- ggplot(data = wines) + 
   geom_histogram(aes(x = citric.acid), binwidth = 0.05) + 
   ggtitle('Citric Acid Histogram')
@@ -187,11 +187,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_3}
+```{r correlation_coefficient_3}
 cor.test(wines$quality, I(sqrt(wines$citric.acid)))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Citric_Acid}
+```{r Scatterplot_Quality_vs_Citric_Acid}
 ggplot(data = wines, aes(citric.acid, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   geom_smooth(method=lm) +
@@ -199,7 +199,7 @@ ggplot(data = wines, aes(citric.acid, quality)) +
   ggtitle('Wine Quality by Citric Acid')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_citric_acid}
+```{r boxplot_quality_vs_citric_acid}
 ggplot(data = wines, 
        aes(x = factor(quality), y = citric.acid)) + 
   geom_jitter(alpha =0.5) +
@@ -212,10 +212,11 @@ ggplot(data = wines,
   scale_y_sqrt() +
   ggtitle('Wine Quality by Citric Acid')
 ```
+
 ### Wine Quality vs. Residual Sugar
 The histogram of the residual sugar looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Distribution_Quality_vs_Residual_Sugar}
+```{r Distribution_Quality_vs_Residual_Sugar}
 plot1 <- ggplot(data = wines) + 
   geom_histogram(aes(x = residual.sugar), binwidth = 0.2) +
   ggtitle('Residual Sugar Histogram')
@@ -227,11 +228,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2, nrow=1)
 ```
 
-```{r echo=FALSE, correlation_coefficient_4}
+```{r correlation_coefficient_4}
 cor.test(wines$quality, log10(wines$residual.sugar))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Residual_Sugar}
+```{r Scatterplot_Quality_vs_Residual_Sugar}
 ggplot(data = wines, aes(residual.sugar, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -239,7 +240,7 @@ ggplot(data = wines, aes(residual.sugar, quality)) +
   ggtitle('Wine Quality by Residual Sugar')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_residual_sugar}
+```{r boxplot_quality_vs_residual_sugar}
 ggplot(data = wines, 
        aes(x = factor(quality), y = residual.sugar)) + 
   geom_jitter(alpha =0.5) +
@@ -256,7 +257,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Chlorides
 The histogram of the chlorides looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Distribution_Quality_vs_Chlorides}
+```{r Distribution_Quality_vs_Chlorides}
 subset_data <- subset(wines, chlorides > quantile(chlorides,0.01))
 
 plot1 <- ggplot(data = subset_data) +
@@ -270,11 +271,11 @@ plot2 <- ggplot(data = subset_data) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_5}
+```{r correlation_coefficient_5}
 cor.test(subset_data$quality, log10(subset_data$chlorides))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Chlorides}
+```{r Scatterplot_Quality_vs_Chlorides}
 ggplot(data = subset_data, aes(chlorides, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -282,7 +283,7 @@ ggplot(data = subset_data, aes(chlorides, quality)) +
   ggtitle('Wine Quality by Chlorides')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_chlorides}
+```{r boxplot_quality_vs_chlorides}
 ggplot(data = subset_data, 
        aes(x = factor(quality), y = chlorides)) + 
   geom_jitter(alpha =0.5) +
@@ -299,7 +300,7 @@ ggplot(data = subset_data,
 ### Wine Quality vs. Free Sulfur Dioxide
 The histogram of the free sulfur dioxide looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is very low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Distribution_Quality_vs_Free_Sulfur_Dioxide}
+```{r Distribution_Quality_vs_Free_Sulfur_Dioxide}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = free.sulfur.dioxide), binwidth = 10) +
@@ -312,11 +313,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_6}
+```{r correlation_coefficient_6}
 cor.test(wines$quality, log10(wines$free.sulfur.dioxide))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_free_sulfur_dioxide}
+```{r Scatterplot_Quality_vs_free_sulfur_dioxide}
 ggplot(data = wines, aes(free.sulfur.dioxide, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -324,7 +325,7 @@ ggplot(data = wines, aes(free.sulfur.dioxide, quality)) +
   ggtitle('Wine Quality by Free Sulfur Dioxide')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_free_sulfur_dioxide}
+```{r boxplot_quality_vs_free_sulfur_dioxide}
 ggplot(data = wines, 
        aes(x = factor(quality), y = free.sulfur.dioxide)) + 
   geom_jitter(alpha =0.5) +
@@ -341,8 +342,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Total Sulfur Dioxide
 The histogram of the total sulfur dioxide looks skewed, so I'll perform a lognormal transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-
-```{r echo = FALSE, Distribution_Quality_vs_Total_Sulfur_Dioxide}
+```{r Distribution_Quality_vs_Total_Sulfur_Dioxide}
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = total.sulfur.dioxide), binwidth = 10) +
   ggtitle('Total Sulfur Dioxide Histogram')
@@ -354,11 +354,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo = FALSE, correlation_coefficient_7}
+```{r correlation_coefficient_7}
 cor.test(wines$quality, log10(wines$total.sulfur.dioxide))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_total_sulfur_dioxide}
+```{r Scatterplot_Quality_vs_total_sulfur_dioxide}
 ggplot(data = wines, aes(total.sulfur.dioxide, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -366,7 +366,7 @@ ggplot(data = wines, aes(total.sulfur.dioxide, quality)) +
   ggtitle('Wine Quality by Free Sulfur Dioxide')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_total_sulfur_dioxide}
+```{r boxplot_quality_vs_total_sulfur_dioxide}
 ggplot(data = wines, 
        aes(x = factor(quality), y = total.sulfur.dioxide)) + 
   geom_jitter(alpha =0.5) +
@@ -379,10 +379,11 @@ ggplot(data = wines,
   scale_y_log10() +
   ggtitle('Wine Quality by Total Sulfur Dioxide')
 ```
+
 ### Wine Quality vs. Density
 The histogram of the density looks normal, so I won't perform a transformation on the data. The correlation coefficient is fairly low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Distribution_Quality_vs_Density}
+```{r Distribution_Quality_vs_Density}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = density), binwidth = 0.001) +
@@ -395,18 +396,18 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_8}
+```{r correlation_coefficient_8}
 cor.test(wines$quality, wines$density)
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_density}
+```{r Scatterplot_Quality_vs_density}
 ggplot(data = wines, aes(density, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   geom_smooth(method=lm) +
   ggtitle('Wine Quality by Density')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_density}
+```{r boxplot_quality_vs_density}
 ggplot(data = wines, 
        aes(x = factor(quality), y = density)) + 
   geom_jitter(alpha =0.5) +
@@ -422,7 +423,7 @@ ggplot(data = wines,
 ### Scatterplot of Wine Quality vs. pH
 The histogram of the pH looks skewed, so I perform a lognormal transformation on the data. The correlation coefficient is very low and the scatterplot is not revealing any trends, so I will not pursue this variable further.
 
-```{r echo=FALSE, Distribution_Quality_vs_pH}
+```{r Distribution_Quality_vs_pH}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = pH), binwidth = 0.01) +
@@ -435,11 +436,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_9}
+```{r correlation_coefficient_9}
 cor.test(wines$quality, log10(wines$pH))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_pH}
+```{r Scatterplot_Quality_vs_pH}
 ggplot(data = wines, aes(pH, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -447,7 +448,7 @@ ggplot(data = wines, aes(pH, quality)) +
   ggtitle('Wine Quality by pH')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_pH}
+```{r boxplot_quality_vs_pH}
 ggplot(data = wines, 
        aes(x = factor(quality), y = pH)) + 
   geom_jitter(alpha =0.5) +
@@ -460,10 +461,11 @@ ggplot(data = wines,
   scale_y_log10() +
   ggtitle('Wine Quality by pH')
 ```
+
 ### Wine Quality vs. Sulphates
 The histogram of the sulphates looks skewed, so I perform a lognormal transformation on the data. The correlation coefficient is OK and the scatterplot looks like there may be a linear trend, so I will pursue this variable further.
 
-```{r echo=FALSE, Distribution_Quality_vs_Sulphates}
+```{r Distribution_Quality_vs_Sulphates}
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = sulphates), binwidth = 0.01) +
   ggtitle('Sulphates Histogram')
@@ -475,11 +477,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_10}
+```{r correlation_coefficient_10}
 cor.test(wines$quality, log10(wines$sulphates))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Sulphates}
+```{r Scatterplot_Quality_vs_sulphates}
 ggplot(data = wines, aes(sulphates, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -487,7 +489,7 @@ ggplot(data = wines, aes(sulphates, quality)) +
   ggtitle('Wine Quality by Sulphates')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_Sulphates}
+```{r boxplot_quality_vs_sulphates}
 ggplot(data = wines, 
        aes(x = factor(quality), y = sulphates)) + 
   geom_jitter(alpha =0.5) +
@@ -504,8 +506,7 @@ ggplot(data = wines,
 ### Wine Quality vs. Alcohol Content
 Alcohol content actually looks pretty correlated after a lognormal transformation!
 
-
-```{r echo=FALSE, Distribution_Quality_vs_Alcohol_Content}
+```{r Distribution_Quality_vs_Alcohol_Content}
 
 plot1 <- ggplot(data = wines) +
   geom_histogram(aes(x = alcohol), binwidth = 0.5) +
@@ -518,11 +519,11 @@ plot2 <- ggplot(data = wines) +
 grid.arrange(plot1, plot2, ncol = 2)
 ```
 
-```{r echo=FALSE, correlation_coefficient_11}
+```{r correlation_coefficient_11}
 cor.test(wines$quality, log10(wines$alcohol))
 ```
 
-```{r echo=FALSE, Scatterplot_Quality_vs_Alcohol_Content}
+```{r Scatterplot_Quality_vs_alcohol}
 ggplot(data = wines, aes(alcohol, quality)) + 
   geom_point(alpha =0.5, color = 'orange', position = 'jitter') +
   scale_x_log10() +
@@ -530,7 +531,7 @@ ggplot(data = wines, aes(alcohol, quality)) +
   ggtitle('Wine Quality by Alcohol Content')
 ```
 
-```{r echo=FALSE, boxplot_quality_vs_Alcohol_Content}
+```{r boxplot_quality_vs_alcohol}
 ggplot(data = wines, 
        aes(x = factor(quality), y = alcohol)) + 
   geom_jitter(alpha =0.5) +
@@ -546,7 +547,7 @@ ggplot(data = wines,
 
 ### Potential Model Parameters
 Volatile acidity, sulphates, and alcohol content all look like promising candidates for the regression model. I'll make a matrix scatter plot of these variables to make sure they are not correlated to eachother. After plotting, it looks like there may be some correlation between sulphates and volatile acidity.
-```{r echo=FALSE, Potential_Model_Paremters}
+```{r Potential_Model_Paremters}
 set.seed(500)
 wines_subset <- subset(wines,!is.na(quality),
                   c(volatile.acidity,sulphates,alcohol,quality))
@@ -557,7 +558,7 @@ names(wines_subset)
 ggpairs(wines_subset[sample.int(nrow(wines_subset),500),])
 ```
 
-# Bivariate Analysis
+# Predictor Variables Analysis
 After transforming non-linear data and looking at the correlation to the wine quality, volatile acidity, sulphates, and alcohol content all look like promising candidates for the regression model. Alcohol content had the strongest correlation to wine quality. Although I need to be aware of the potential correlation between sulphates and volatile acidity, I will cotinue investigating these variables.
 
 # Multivariate Plots Section
@@ -565,7 +566,7 @@ After transforming non-linear data and looking at the correlation to the wine qu
 ### Quality vs. Alcohol Content and Volatile Acidity
 I use the Color Brewer library to add volatile acidity to a scatterplot of quality vs. alcohol. There is a noticeable trend and I definitely want to test how volatile acidity works in my regression model.
 
-```{r echo=FALSE, Quality_vs_Alcohol_and_Volatile_Acidity}
+```{r Quality_vs_Alcohol_and_Volatile_Acidity}
 ggplot(aes(x = alcohol, y = quality), data = wines) + 
   geom_point(aes(colour = log10(wines$volatile.acidity)), 
     size = 1, position = 'jitter') +
@@ -578,7 +579,7 @@ ggplot(aes(x = alcohol, y = quality), data = wines) +
 ### Quality vs. Alcohol Content and Sulphates
 I use the Color Brewer library to add sulphates to a scatterplot of quality vs. alcohol. Although the trend is less pronounced than using volatile acidity, I'll still test how the sulphates variable works in my regression model.
 
-```{r echo=FALSE, Quality_vs_Alcohol_and_Sulphates}
+```{r Quality_vs_Alcohol_and_Sulphates}
 ggplot(aes(x = alcohol, y = quality), data = wines) + 
   geom_point(aes(colour = log10(wines$sulphates)), size = 1, 
     position = 'jitter') +
@@ -588,21 +589,51 @@ ggplot(aes(x = alcohol, y = quality), data = wines) +
   ggtitle('Quality by log10 of Alcohol and Sulphates')
 ```
 
+### Relationship between Residual Sugar, Alcohol Content, and Density
+It was suggested to look at the relationship between residual sugar, alcohol content, and density, so I put all three variables on a plot to observe any trends. It does appear that higher density wines have higher residual sugar and lower alcohol content (i.e. sweeter wines are more dense and have less alcohol). After some reading about wine making, it seems that the sugar has a direct impact on the alcohol content of the wine, so it's surprising that the residual sugars variable is not more correlated to the quality of the wine.
+
+```{r Alcohol_Sugar_Density}
+ggplot(aes(x = residual.sugar, y = alcohol, color = density), data = wines) + 
+  geom_point(size = 1, position = 'jitter') +
+  scale_colour_distiller(palette = "BrBG",
+    guide = guide_legend(title="Density",
+    override.aes = list(alpha = 1, size = 2))) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "Residual Sugar", y = "Alcohol Content") +
+  ggtitle('Density by log10 of Alcohol and Residual Sugars')
+```
+
+I also converted the residual sugar concentration into grams of sugar per gram of wine by dividing by the density. I compare this to the alcohol content and quality of wine, but I still don't see a case to examine residual sugar further - alcohol content looks more correlated to wine quality.
+
+```{r Alcohol_Sugar_quality}
+ggplot(aes(x = I(residual.sugar/density*10^3), y = alcohol, color = factor(quality)), data = wines) + 
+  geom_point(size = 1, position = 'jitter') +
+  geom_smooth(method = "lm", se = FALSE,size=1) +
+  scale_colour_brewer(palette = "BrBG",
+    guide = guide_legend(title="Quality",
+    override.aes = list(alpha = 1, size = 2))) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "Residual Sugar/Density", y = "Alcohol Content") +
+  ggtitle('Wine Quality by log10 of Alcohol and Residual Sugar/Density')
+```
+
 ### Building the Linear Model - Quality and Alcohol
-```{r echo=FALSE, Building_the_Linear_Model}
+```{r Building_the_Linear_Model}
 m1 <- lm(I(quality) ~ I(log(alcohol)), data = wines)
 summary(m1)
 ```
 
 ### Building the Linear Model - Quality, Alcohol, and Volatile Acidity
-```{r echo=FALSE, Building_the_Linear_Model_2}
+```{r Building_the_Linear_Model_2}
 m2 <- lm(I(quality) ~ I(log10(alcohol)) + I(log10(volatile.acidity)), 
          data = wines)
 summary(m2)
 ```
 
 ### Building the Linear Model - Quality, Alcohol, Volatile Acidity, and Sulphates
-```{r echo=FALSE, Building_the_Linear_Model_3}
+```{r Building_the_Linear_Model_3}
 m3 <- lm(I(quality) ~ I(log10(alcohol)) + I(log10(volatile.acidity)) 
         + I(log10(sulphates)), data = wines)
 summary(m3)
@@ -611,7 +642,7 @@ summary(m3)
 ### Plotting the Predicted Quality and the Actual Quality
 Using the coefficients calculated above, I plot the histogram of the predicted wine quality and the histogram of the actual wine quality. The histograms look pretty similar!
 
-```{r echo=FALSE, Plot_the_Results}
+```{r Plot_the_Results}
 wines$pred_quality <- I(-2.0226 + 7.4396*log10(wines$alcohol) - 
   1.2988*log10(wines$volatile.acidity) + 1.5139*log10(wines$sulphates))
 
@@ -625,7 +656,7 @@ ggplot(data = wines) +
 
 ### Plotting the Error
 A scatterplot of the residual error against the predicted outcome and a histogram of the standard error for each predicted outcome reveals a fairly normal set of error indicating no additional trends in the data.
-```{r echo=FALSE, Plot_the_Error}
+```{r Plot_the_Error}
 ggplot(data = wines) + 
   geom_jitter(aes(x=pred_quality, y = resid(m3), colour = 'orange'),
               size = 1, 
@@ -636,8 +667,7 @@ ggplot(data = wines) +
   ggtitle('Model Residual Error')
 ```
 
-
-```{r echo=FALSE, Plot_the_Error_2}
+```{r Plot_the_Error_2}
 wines$SE <- as.numeric(wines$quality - wines$pred_quality)
 ggplot(data = wines) + 
   geom_histogram(aes(x = SE,colour = "red"),show.legend = F, binwidth = 0.1) +
@@ -652,7 +682,7 @@ Each time I added an additional variable into the linear regression model, the m
 # Final Plots and Summary
 
 ### Plot One
-```{r echo=FALSE, Plot_One}
+```{r fig.width = 8, fig.height = 8, Plot_One}
 set.seed(500)
 wines_subset <- subset(wines,!is.na(quality),c(volatile.acidity,sulphates,alcohol,quality))
 wines_subset$volatile.acidity <- log10(wines_subset$volatile.acidity)
@@ -670,7 +700,7 @@ names(wines_subset)
 
 plot1 <- ggpairs(data = wines_subset[sample.int(nrow(wines_subset),500),],
                  title = "Scatterplot Matrix",
-                 columnLabels = c("Volatile Acidity","Sulphates","Alcohol Content","Wine Quality"),
+                 columnLabels = c("Volatile Acidity (g/dm^3)","Sulphates (g/dm^3)","Alcohol Content (%)","Wine Quality (0-10)"),
         upper = list(continuous = wrap("cor", size = 4)),
         lower = list(continuous =  wrap(lowerFn)))
 plot1 <- plot1 + theme(axis.text = element_text(size = 9),
@@ -682,27 +712,27 @@ print(plot1, bottomHeightProportion = 1, leftWidthProportion = 1)
 ```
 
 ### Description One
-This is a matrix of scatterplots displaying the correlations between the variables in my model.
+This is a matrix of scatterplots and correlation coefficients displaying the correlations between the variables in my model. I think it is important because in one plot it demonstrates the correlations between the dependent and independent variables as well as correlations of one dependent variable to another.
 
 ### Plot Two
-```{r echo=FALSE, Plot_Two}
+```{r Plot_Two}
 ggplot(aes(x = alcohol, y = volatile.acidity, color = factor(quality)), data = wines) + 
   geom_point(size = 1, position = 'jitter') +
   geom_smooth(method = "lm", se = FALSE,size=1) +
   scale_colour_brewer(palette = "BrBG",
-    guide = guide_legend(title="Wine Quality",
+    guide = guide_legend(title="Wine Quality (0-10)",
     override.aes = list(alpha = 1, size = 2))) +
   scale_x_log10() +
   scale_y_log10() +
-  labs(x = "Alcohol Content (%)", y = "Volatile Acidity") +
-  ggtitle('Quality by log10 of Alcohol and Volatile Acidity')
+  labs(x = "Alcohol Content (% by Volume)", y = "Volatile Acidity (g/dm^3)") +
+  ggtitle('Wine Quality by log10 of Alcohol Content and Volatile Acidity')
 ```
 
 ### Description Two
-This is a plot of the relationship between the wine quality, alcohol, and volatile acidity. These were the most correlated looking variables and the variables I ended up using in my linear model. It was suggested to use wine quality for the color variable and add the linear trend, which makes the plot much clearer.
+This is a plot of the relationship between the wine quality, alcohol, and volatile acidity. These were the most correlated looking variables, and the variables I ended up using in my linear model. It was suggested to use wine quality for the color variable and add the linear trend, which makes the plot much clearer.
 
 ### Plot Three
-```{r echo=FALSE, Plot_Three}
+```{r Plot_Three}
 ggplot(data = wines) + 
   geom_histogram(aes(x = SE,colour = "red"),show.legend = F, binwidth = 0.1) +
   xlim(-3,3) +
@@ -716,7 +746,9 @@ This is a histogram plot of the error for the predicted wine quality for the 1,5
 ------
 
 # Reflection
-One thing I had trouble with during the analysis was deciding which plots to use when all my data was continuous except for the outcome variable. For example, at first I wasn't sure how to incorporate box plots since there was no categorical data. Another thing I had trouble with was what to use as the X-axis for the standard error plot - then it was suggested to use a histogram instead of a bar plot which was a great way to show normally distributed error! I was surprised that my model had significant results. The correlations of the chemical properties didn't appear very good to me in the scatterplots, so I had low expectations for the linear regression model. I think more sample groups of data could improve and validate the model.
+One thing I had trouble with during the analysis was deciding which plots to use when all my data was continuous except for the outcome variable. For example, at first I wasn't sure how to incorporate box plots since there was no categorical data. Another thing I had trouble with was what to use as the X-axis for the standard error plot - then it was suggested to use a histogram instead of a bar plot which was a great way to show normally distributed error! 
+
+I was surprised that my model had significant results. The correlations of the chemical properties didn't appear to be very strong in the scatterplots, so I had low expectations for the linear regression model. I think more sample groups of data would improve and validate the model.
 
 Problems in the model include:
 1. There is not much variation in the dependent variable (between 3 and 8 with the vast majority being 5, 6, or 7).
